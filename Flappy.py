@@ -5,8 +5,23 @@ from pygame.locals import *
 
 #Definindo dimensões da tela do jogo
 
-LARGURA = 500
-ALTURA = 800
+LARGURA = 400
+ALTURA = 700
+
+#criando classe do personagem (ela herda funções da classe sprite do pygame)
+class Guria(pygame.sprite.Sprite):
+    def __init__(self):
+        #inicializa o construtor sprite do pygame:
+        pygame.sprite.Sprite.__init__(self)  
+        #importando imagem do personagem e usando convert alpha para considerar apenas os pixel do icone(sem o fundo)
+        self.image = pygame.image.load('guria.png').convert_alpha()
+        #posição e tamanho do personagem
+        self.rect = self.image.get_rect()
+        self.rect[0]=200
+        self.rect[1]=350
+    #atualização do sprite com o tempo   
+    def update(self):
+        pass
 
 #função que inicializa o pygame
 pygame.init()
@@ -16,6 +31,14 @@ tela=pygame.display.set_mode((LARGURA,ALTURA))
 FUNDO=pygame.image.load("fundo.png")
 #alterando tamanho da imagem do fundo para caber na tela
 FUNDO=pygame.transform.scale(FUNDO,(LARGURA,ALTURA))
+#Criando grupo de personagens
+guria_grupo = pygame.sprite.Group()
+#criando obsjeto do tipo Guria
+guria=Guria()
+#adicionando obejto no grupo
+guria_grupo.add(guria)
+
+
 
 #loop principal do game 
 while True:
@@ -23,8 +46,13 @@ while True:
         # Se o usuário apertar no botão (x) de fechar, o jogo é fechado 
         if evento.type == QUIT:
             pygame.quit()
+    #colocando a imagem de fundo na tela na origem da dela (0,0)
     tela.blit(FUNDO,(0,0))
-    
+    #modificações do personagem
+    guria_grupo.update()
+    #colocando o personagem na tela
+    guria_grupo.draw(tela)
+
     
     
     
