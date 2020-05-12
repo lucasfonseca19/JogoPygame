@@ -6,7 +6,7 @@ from pygame.locals import *
 #Definindo dimensões da tela do jogo
 
 LARGURA = 400
-ALTURA = 700
+ALTURA = 800
 
 #criando classe do personagem (ela herda funções da classe sprite do pygame)
 class Guria(pygame.sprite.Sprite):
@@ -17,8 +17,9 @@ class Guria(pygame.sprite.Sprite):
         self.image = pygame.image.load('guria.png').convert_alpha()
         #posição e tamanho do personagem
         self.rect = self.image.get_rect()
-        self.rect[0]=200
-        self.rect[1]=350
+        self.rect.center=(LARGURA/2,ALTURA/2)
+       
+        
     #atualização do sprite com o tempo   
     def update(self):
         pass
