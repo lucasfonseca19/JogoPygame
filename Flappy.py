@@ -4,10 +4,10 @@ import pygame
 from pygame.locals import *
 
 #Definindo dimensões da tela do jogo
-
 LARGURA = 400
 ALTURA = 800
-
+#constantes fisicas
+VELOCIDADE=2
 #criando classe do personagem (ela herda funções da classe sprite do pygame)
 class Guria(pygame.sprite.Sprite):
     def __init__(self):
@@ -15,15 +15,18 @@ class Guria(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  
         #importando imagem do personagem e usando convert alpha para considerar apenas os pixel do icone(sem o fundo)
         self.image = pygame.image.load('guria.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image,(100,100))
         #posição e tamanho do personagem
         self.rect = self.image.get_rect()
         self.rect.center=(LARGURA/2,ALTURA/2)
-       
+        self.velocidade= VELOCIDADE
         
     #atualização do sprite com o tempo   
     def update(self):
-        pass
-
+        #update da altura
+        self.rect[1] +=VELOCIDADE
+    def pular(self):
+        self.rect[1]-=8
 #função que inicializa o pygame
 pygame.init()
 # Criando a tela com as dimensões definidas
@@ -38,9 +41,6 @@ guria_grupo = pygame.sprite.Group()
 guria=Guria()
 #adicionando obejto no grupo
 guria_grupo.add(guria)
-
-
-
 #loop principal do game 
 while True:
     for evento in pygame.event.get():
@@ -53,6 +53,12 @@ while True:
     guria_grupo.update()
     #colocando o personagem na tela
     guria_grupo.draw(tela)
+    if evento.type == pygame.KEYDOWN:
+        if evento.key==K_SPACE:
+            guria.pular()
+    
+
+    
 
     
     
