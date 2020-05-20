@@ -9,6 +9,9 @@ ALTURA = 800
 #constantes fisicas
 VELOCIDADE=2.5
 GRAVIDADE=0.08
+VELOCIDADEJOGO=10
+LARGURASOLO= 2*LARGURA
+ALTURASOLO=200
 #criando classe do personagem (ela herda funções da classe sprite do pygame)
 class Guria(pygame.sprite.Sprite):
     def __init__(self):
@@ -29,6 +32,24 @@ class Guria(pygame.sprite.Sprite):
     #sprite pula
     def pular(self):
         self.velocidade =- VELOCIDADE
+#criando classe solo
+class Solo(pygame.sprite.Sprite):
+    def __init__(self,posix):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('base.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image,(LARGURASOLO,ALTURASOLO))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect[0]= posix
+        self.rect[1]=ALTURA-ALTURASOLO
+    def update(self):
+        self.rect[0]-=VELOCIDADEJOGO
+
+def foratela(sprite):
+    #posicao x do retangulo na tela com sua largura (valor resultante boleano)
+    return sprite.rect[0]<-(sprite.rect[2])
+
+
 #função que inicializa o pygame
 pygame.init()
 # Criando a tela com as dimensões definidas
@@ -43,6 +64,12 @@ guria_grupo = pygame.sprite.Group()
 guria=Guria()
 #adicionando obejto no grupo
 guria_grupo.add(guria)
+#criando grupo de solo
+solo_grupo=pygame.sprite.Group()
+for i in range (2):
+    solo=Solo(LARGURASOLO*i)
+    solo_grupo.add(solo)
+
 #loop principal do game 
 while True:
    
@@ -52,14 +79,22 @@ while True:
             pygame.quit()
         if evento.type == pygame.KEYDOWN:
             if evento.key==K_SPACE:
-                guria.pular()
+                guria.pular()        
     #colocando a imagem de fundo na tela na origem da dela (0,0)
-    tela.blit(FUNDO,(0,0))            
+    tela.blit(FUNDO,(0,0))
+    # teste se solo fora da tela    
+    if foratela(solo_grupo.sprites()[0]):
+        solo_grupo.remove(solo_grupo.sprites()[0])
+        novosolo=Solo(LARGURASOLO-20)
+        solo_grupo.add(novosolo)
     #modificações do personagem
     guria_grupo.update()
+    #alteraçao solo
+    solo_grupo.update()
     #colocando o personagem na tela
     guria_grupo.draw(tela)
-    
+    #colocando solo na tela
+    solo_grupo.draw(tela)
     
     
     pygame.display.update()
