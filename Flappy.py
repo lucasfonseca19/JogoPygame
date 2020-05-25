@@ -1,17 +1,23 @@
 # Importando bibliotecas
  
-import pygame
+import pygame, random
 from pygame.locals import *
+
 
 #Definindo dimensões da tela do jogo
 LARGURA = 400
 ALTURA = 800
+
 #Constantes fisicas
 VELOCIDADE=10
 GRAVIDADE=1
 VELOCIDADEJOGO=10
 LARGURASOLO= 2*LARGURA
 ALTURASOLO=200
+LARGURACORONA=80
+ALTURACORONA=500
+ESPACO=200
+
 #criando classe do personagem (ela herda funções da classe sprite do pygame)
 class Guria(pygame.sprite.Sprite):
     def __init__(self):
@@ -35,8 +41,8 @@ class Guria(pygame.sprite.Sprite):
         self.rect[1] += self.velocidade
     #sprite pula
     def pular(self):
-        self.velocidade =- VELOCIDADE
-#criando classe solo(ela herda funções da classe sprite do pygame)
+        self.velocidade = - VELOCIDADE
+#criando classe Solo(ela herda funções da classe sprite do pygame)
 class Solo(pygame.sprite.Sprite):
     def __init__(self,posix):
         #inicializa o construtor sprite do pygame:
@@ -45,7 +51,7 @@ class Solo(pygame.sprite.Sprite):
         self.image = pygame.image.load('base.png').convert_alpha()
         #definindo dimensões do solo
         self.image = pygame.transform.scale(self.image,(LARGURASOLO,ALTURASOLO))
-        #criando mascara de valores 0 e 1 (0 para pixel vazio e 1 para pixel com alguma cor) Isso sera usado para checar a colisão que ocorrerá apenas quando um pixel 1 de um grupo encontar em outro grupo um pixel igual(1)
+
         self.mask = pygame.mask.from_surface(self.image)
         # transformando imagem num "retângulo" para facilitar seu uso com pygame
         self.rect = self.image.get_rect()
@@ -57,13 +63,38 @@ class Solo(pygame.sprite.Sprite):
     def update(self):
         #update da posição x
         self.rect[0]-=VELOCIDADEJOGO
+#criando classe Corona(ela herda funções da classe sprite do pygame)
+class Corona(pygame.sprite.Sprite):
+    def __init__(self,inversao,posix,tamanhoy):
+         #inicializa o construtor sprite do pygame:
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('pipe-red.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image,(LARGURACORONA,ALTURACORONA))
+
+        self.rect=self.image.get_rect()
+        self.rect[0]=posix
+        
+        if inversao:
+            self.image=pygame.transform.flip(self.image,False,True)
+            self.rect[1] = -(self.rect[3]-tamanhoy)
+        else:
+            self.rect[1]=ALTURA - tamanhoy 
+        self.mask = pygame.mask.from_surface(self.image)
+    def update(self):
+        self.rect[0] -= VELOCIDADEJOGO
+
+
+
 #função para verificar se algum elemento saiu inteiramente da tela
 def foratela(sprite):
     #posicao x do retangulo na tela comparado com sua largura (valor resultante boleano)
     return sprite.rect[0]<-(sprite.rect[2])
-def colide(sprite1,sprite2):
-    return sprite1.rect[1]==sprite2.rect[3]
-
+#
+def randomizacorona(posix):
+    tamanho = random.randint(200,500)
+    corona = Corona(False,posix,tamanho)
+    corona_invertida = Corona(True,posix,ALTURA-tamanho-ESPACO)
+    return (corona,corona_invertida)
 
 #função que inicializa o pygame
 pygame.init()
@@ -81,6 +112,14 @@ guria=Guria()
 guria_grupo.add(guria)
 #criando grupo de solo
 solo_grupo=pygame.sprite.Group()
+#criando o grupo do corona 
+corona_grupo = pygame.sprite.Group()
+#
+for i in range(2):
+    corona = randomizacorona(LARGURA*i+400)
+    corona_grupo.add(corona[0])
+    corona_grupo.add(corona[1])
+
 
 #criando um solo em seguida do outro
 for i in range (2):
@@ -100,27 +139,38 @@ while True:
                 guria.pular()        
     #colocando a imagem de fundo na tela na origem da dela (0,0)
     tela.blit(FUNDO,(0,0))
-    # teste se o solo está fora da tela    
+       
     if foratela(solo_grupo.sprites()[0]):
         #remove o solo na posição 0 do grupo se ele ja saiu da tela
         solo_grupo.remove(solo_grupo.sprites()[0])
         #criando novo solo pra entrar no grupo criando assim um loop de solos consecutivos(o -10 garante um melhor "encaixe" de um no outro)
         novosolo=Solo(LARGURASOLO-10)
         solo_grupo.add(novosolo)
+    # teste se o solo está fora da tela 
+    if foratela(corona_grupo.sprites()[0]):
+        corona_grupo.remove(corona_grupo.sprites()[0])
+        corona_grupo.remove(corona_grupo.sprites()[0])
+
+        corona = randomizacorona(LARGURA*2)
+
+        corona_grupo.add(corona[0])
+        corona_grupo.add(corona[1])
+
     #modificações do personagem
     guria_grupo.update()
     #alteraçao solo
     solo_grupo.update()
+    #
+    corona_grupo.update()
+
     #colocando o personagem na tela
     guria_grupo.draw(tela)
     #colocando solo na tela
     solo_grupo.draw(tela)
-    
+    #
+    corona_grupo.draw(tela)
 
     
     #Atualização da tela
     pygame.display.update()
-    #Checar colisão entre personagem em solo
-    if colide(guria_grupo.sprites()[0],solo_grupo.sprites()[1]):
-        input()
-        break 
+ 
