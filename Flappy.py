@@ -11,7 +11,7 @@ ALTURA = 800
 #Constantes fisicas
 VELOCIDADE=10
 GRAVIDADE=1
-VELOCIDADEJOGO=10
+VELOCIDADEJOGO=8
 LARGURASOLO= 2*LARGURA
 ALTURASOLO=200
 LARGURACORONA=80
@@ -41,7 +41,7 @@ class Guria(pygame.sprite.Sprite):
         self.rect[1] += self.velocidade
     #sprite pula
     def pular(self):
-        self.velocidade = - VELOCIDADE
+        self.velocidade = - VELOCIDADE-1 
 #criando classe Solo(ela herda funções da classe sprite do pygame)
 class Solo(pygame.sprite.Sprite):
     def __init__(self,posix):
@@ -81,7 +81,7 @@ class Corona(pygame.sprite.Sprite):
             self.rect[1]=ALTURA - tamanhoy 
         self.mask = pygame.mask.from_surface(self.image)
     def update(self):
-        self.rect[0] -= VELOCIDADEJOGO
+        self.rect[0] -= VELOCIDADEJOGO+4
 
 
 
@@ -91,10 +91,10 @@ def foratela(sprite):
     return sprite.rect[0]<-(sprite.rect[2])
 #
 def randomizacorona(posix):
-    tamanho = random.randint(200,500)
+    tamanho = random.randint(300,500)
     corona = Corona(False,posix,tamanho)
     corona_invertida = Corona(True,posix,ALTURA-tamanho-ESPACO)
-    return (corona,corona_invertida)
+    return (corona,corona_invertida) 
 
 #função que inicializa o pygame
 pygame.init()
@@ -116,7 +116,7 @@ solo_grupo=pygame.sprite.Group()
 corona_grupo = pygame.sprite.Group()
 #
 for i in range(2):
-    corona = randomizacorona(LARGURA*i+400)
+    corona = randomizacorona(400*i+600)
     corona_grupo.add(corona[0])
     corona_grupo.add(corona[1])
 
@@ -151,7 +151,7 @@ while True:
         corona_grupo.remove(corona_grupo.sprites()[0])
         corona_grupo.remove(corona_grupo.sprites()[0])
 
-        corona = randomizacorona(LARGURA*2)
+        corona = randomizacorona(LARGURA+300)
 
         corona_grupo.add(corona[0])
         corona_grupo.add(corona[1])
@@ -173,4 +173,11 @@ while True:
     
     #Atualização da tela
     pygame.display.update()
+    if pygame.sprite.groupcollide(guria_grupo,corona_grupo, False, False, pygame.sprite.collide_mask) or   guria.rect.bottom >= 650:
+        
+
+        # Game over
+        
+        break
+
  
