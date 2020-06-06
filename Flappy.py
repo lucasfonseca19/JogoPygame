@@ -1,5 +1,5 @@
 # Importando bibliotecas
- 
+import os,sys
 import pygame, random
 from pygame.locals import *
 
@@ -17,7 +17,7 @@ ALTURASOLO=200
 LARGURACORONA=80
 ALTURACORONA=500
 ESPACO=200
-
+SOM={}
 #criando classe do personagem (ela herda funções da classe sprite do pygame)
 class Guria(pygame.sprite.Sprite):
     def __init__(self):
@@ -127,6 +127,12 @@ for i in range (2):
     solo_grupo.add(solo)
 #Setup do framerate do jogo
 fps=pygame.time.Clock()
+#Sons
+arquivo = os.path.join('Cardib.wav')
+caminho = os.path.join(os.path.dirname(__file__), arquivo)
+print(caminho)
+SOM['morreu'] = pygame.mixer.Sound(caminho)
+morre = False
 #LOOP PRINCIPAL DO JOGO
 while True:
     fps.tick(24)
@@ -174,10 +180,6 @@ while True:
     #Atualização da tela
     pygame.display.update()
     if pygame.sprite.groupcollide(guria_grupo,corona_grupo, False, False, pygame.sprite.collide_mask) or   guria.rect.bottom >= 650:
-        
-
-        # Game over
-        
-        break
-
+        SOM['morreu'].play()     
+  
  
