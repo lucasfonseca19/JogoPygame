@@ -103,7 +103,7 @@ class Corona(pygame.sprite.Sprite):
     def update(self):
         self.rect[0] -= VELOCIDADEJOGO+4
 #endregion
-
+#oi
 # **************** Definindo funções do jogo ****************
 
 ## Verificando se algum elemento saiu inteiramente da tela
