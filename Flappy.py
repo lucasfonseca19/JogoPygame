@@ -18,7 +18,7 @@ ALTURA = 700
 
 #region
 
-VELOCIDADE=12
+VELOCIDADE=12 
 GRAVIDADE=1.5
 VELOCIDADEJOGO=8
 LARGURASOLO= 2*LARGURA
@@ -134,16 +134,19 @@ def colisao():
     else:
         return False
 
+
+
+
+
 ## Pontua ao passar pelos canos 
 def pontua(sprite1,sprite2):
-    
+
     meio_corona=sprite2.rect[0]+sprite2.rect[2]/2
-        
+
     meia_guria=sprite1.rect[0]+sprite1.rect[2]/2
     global pontos,numero
     if meio_corona<=meia_guria:
         pontos=sprite2.numero
-        
         
 
 #endregion
@@ -153,10 +156,17 @@ def pontua(sprite1,sprite2):
 pygame.init()
 fonte_g=pygame.font.Font("FlappyBirdy.ttf",80)
 fonte_p=pygame.font.Font("FlappyBirdy.ttf",60)
+fonte_pts = pygame.font.Font("Flappy-Bird.ttf",40)
 
+
+def ponto_tela(superficie,texto,x,y):
+    sup_pts  = fonte_pts.render(texto,True,(0,0,0)) 
+    pts_rect = sup_pts.get_rect()
+    pts_rect.midtop = (x,y)
+    superficie.blit(sup_pts,pts_rect)
 ## Tela de gameover
 def teladegameover():
-  
+    global pontos
     tela.blit(FUNDO,(0,0))
     pygame.time.delay(1000)
     SOM["tela_inicial"].play(0,0,500)
@@ -170,6 +180,9 @@ def teladegameover():
     tela.blit(sup_sub1,(75,ALTURA/2))
     tela.blit(sup_sub2,(300,(ALTURA/2)+50))
     tela.blit(sup_sub3,(215,(ALTURA/2)+100))
+
+    if pontos != 0:
+        ponto_tela(tela,pontos,215,(ALTURA/2)+150)
     pygame.display.flip()
     aguardando=True
     while aguardando:
@@ -220,11 +233,14 @@ for i in range(2):                      #randomizando corona criando novos e adi
 loop=True
 while loop:
     if game_over:
+        numero = 2
+        pontos = 0
         teladegameover()
         game_over = False
         guria_grupo = pygame.sprite.Group()  #Criando grupo de personagens (facilita manipulação)
         guria=Guria()  #Criando obsjeto do tipo Guria
         guria_grupo.add(guria)  #Adicionando obejto no grupo
+
 
         solo_grupo=pygame.sprite.Group()  #Criando grupo de solo (facilita manipulação)
         for i in range (2):               #criando um solo em seguida do outro
@@ -273,7 +289,7 @@ while loop:
     corona_grupo.update()                                   # Update obstáculo  
     corona_grupo.draw(tela)                                 # Colocando Obstáculo na tela
     
-   
+    ponto_tela(tela,str(pontos),10,20)
     
     
     
