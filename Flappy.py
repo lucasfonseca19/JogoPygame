@@ -10,28 +10,32 @@ import pygame.freetype
 # **************** Definindo dimensões da tela do jogo ****************
 
 #region
-LARGURA = 400
-ALTURA = 800
+LARGURA = 600
+ALTURA = 700
 #endregion
 
 # **************** Definindo Alguns Setups do jogo ****************
 
 #region
-LARGURA = 400
-VELOCIDADE=10
-GRAVIDADE=1
+
+VELOCIDADE=12
+GRAVIDADE=1.5
 VELOCIDADEJOGO=8
 LARGURASOLO= 2*LARGURA
-ALTURASOLO=200
+ALTURASOLO=100
 LARGURACORONA=80
 ALTURACORONA=500
 ESPACO=200
 FPS=30
 SOM={}
-
+pygame.mixer.init()
+SOM["tela_inicial"]=pygame.mixer.Sound('coronamusic.ogg')
+SOM["pular"]=pygame.mixer.Sound('pulo.ogg')
+SOM["colisao"]=pygame.mixer.Sound('colisao.ogg')
+SOM["ponto"]=pygame.mixer.Sound('ponto.ogg')
 fps=pygame.time.Clock()         #Setup do framerate do jogo
-
-
+pontos=0
+numero=0
 
 #endregion
 
@@ -62,6 +66,7 @@ class Guria(pygame.sprite.Sprite):
     #sprite pula
     def pular(self):
         self.velocidade = - VELOCIDADE-1 
+        
 
 class Solo(pygame.sprite.Sprite):
     def __init__(self,posix):
@@ -85,7 +90,7 @@ class Solo(pygame.sprite.Sprite):
         self.rect[0]-=VELOCIDADEJOGO
 
 class Corona(pygame.sprite.Sprite):
-    def __init__(self,inversao,posix,tamanhoy):
+    def __init__(self,inversao,posix,tamanhoy,numero):
          #inicializa o construtor sprite do pygame:
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('pipe-red.png').convert_alpha()
@@ -93,7 +98,7 @@ class Corona(pygame.sprite.Sprite):
 
         self.rect=self.image.get_rect()
         self.rect[0]=posix
-        
+        self.numero=numero-2
         if inversao:
             self.image=pygame.transform.flip(self.image,False,True)
             self.rect[1] = -(self.rect[3]-tamanhoy)
@@ -103,57 +108,68 @@ class Corona(pygame.sprite.Sprite):
     def update(self):
         self.rect[0] -= VELOCIDADEJOGO+4
 #endregion
-#oi
+
 # **************** Definindo funções do jogo ****************
 
-## Verificando se algum elemento saiu inteiramente da tela
 
 #region
-def foratela(sprite):
+## Verificando se algum elemento saiu inteiramente da tela
+def foratela(sprite):          
     #posicao x do retangulo na tela comparado com sua largura (valor resultante boleano)
     return sprite.rect[0]<-(sprite.rect[2])
 
 ## Criação de canos
 def randomizacorona(posix):
-    
-    tamanho = random.randint(200,500)
-    corona = Corona(False,posix,tamanho+10)
-    corona_invertida = Corona(True,posix,ALTURA-tamanho-ESPACO)
+    global numero
+    numero+=1
+    tamanho = random.randint(150 ,450)
+    corona = Corona(False,posix,tamanho,numero)
+    corona_invertida = Corona(True,posix,ALTURA-tamanho-ESPACO,numero)
     return (corona,corona_invertida) 
 
 ## Verificador de Colisão
 def colisao():
-    if pygame.sprite.groupcollide(guria_grupo,corona_grupo, False, False, pygame.sprite.collide_mask) or   guria.rect.bottom >= 650:
+    if pygame.sprite.groupcollide(guria_grupo,corona_grupo, False, False, pygame.sprite.collide_mask) or   guria.rect.bottom >= 610:
         return True
     else:
         return False
 
-
+## Pontua ao passar pelos canos 
+def pontua(sprite1,sprite2):
+    
+    meio_corona=sprite2.rect[0]+sprite2.rect[2]/2
+        
+    meia_guria=sprite1.rect[0]+sprite1.rect[2]/2
+    global pontos,numero
+    if meio_corona<=meia_guria:
+        pontos=sprite2.numero
+        
+        
 
 #endregion
 
 # ****************FUNÇÃO PRINCIPAL DO GAME ****************
 
 pygame.init()
-fonte_g=pygame.font.Font("FlappyBirdy.ttf",60)
-fonte_p=pygame.font.Font("FlappyBirdy.ttf",40)
+fonte_g=pygame.font.Font("FlappyBirdy.ttf",80)
+fonte_p=pygame.font.Font("FlappyBirdy.ttf",60)
 
 ## Tela de gameover
 def teladegameover():
-    pygame.mixer.music.stop()
+  
     tela.blit(FUNDO,(0,0))
-    pygame.mixer.music.load('coronamusic.ogg')
-    pygame.mixer.music.play()
+    pygame.time.delay(1000)
+    SOM["tela_inicial"].play(0,0,500)
     sup_tit1=fonte_g.render("Flappy Bird ",False,(221,119,70))
     sup_tit2=fonte_g.render("Coronoa Edition",True,(221,119,70))
     sup_sub1=fonte_p.render("Use a barra para iniciar o jogo ",True,(221,119,70))
     sup_sub2=fonte_p.render("e",True,(221,119,70))
     sup_sub3=fonte_p.render(" para pular",True,(221,119,70))
-    tela.blit(sup_tit1,(125,ALTURA/4))
-    tela.blit(sup_tit2,(100,ALTURA/3))
-    tela.blit(sup_sub1,(50,ALTURA/2))
-    tela.blit(sup_sub2,(200,(ALTURA/2)+50))
-    tela.blit(sup_sub3,(150,(ALTURA/2)+100))
+    tela.blit(sup_tit1,(200,ALTURA/4))
+    tela.blit(sup_tit2,(150,ALTURA/3))
+    tela.blit(sup_sub1,(75,ALTURA/2))
+    tela.blit(sup_sub2,(300,(ALTURA/2)+50))
+    tela.blit(sup_sub3,(215,(ALTURA/2)+100))
     pygame.display.flip()
     aguardando=True
     while aguardando:
@@ -163,7 +179,7 @@ def teladegameover():
                 pygame.quit()
                 
             if event.type == pygame.KEYUP:
-                pygame.mixer.music.stop()
+                SOM["tela_inicial"].fadeout(500)
                 aguardando = False
 
  
@@ -181,10 +197,8 @@ game_over=True
 #endregion
 
 
-
-
-
 ## **************** Grupos de Asset ****************
+
 #region
 guria_grupo = pygame.sprite.Group()  #Criando grupo de personagens (facilita manipulação)
 guria=Guria()  #Criando obsjeto do tipo Guria
@@ -201,7 +215,6 @@ for i in range(2):                      #randomizando corona criando novos e adi
     corona_grupo.add(corona[0])
     corona_grupo.add(corona[1])
 #endregion
-
 
 ## **************** LOOP PRINCIPAL DO JOGO ****************
 loop=True
@@ -230,7 +243,9 @@ while loop:
             pygame.quit()
         if evento.type == pygame.KEYDOWN:
             if evento.key==K_SPACE:
-                guria.pular()        
+                SOM["pular"].play() 
+                guria.pular()
+                       
    
     tela.blit(FUNDO,(0,0))                                   #colocando a imagem de fundo na tela na origem da dela (0,0)
     
@@ -242,7 +257,7 @@ while loop:
         corona_grupo.remove(corona_grupo.sprites()[0])
         corona_grupo.remove(corona_grupo.sprites()[0])
 
-        corona = randomizacorona(LARGURA+300)
+        corona = randomizacorona(LARGURA+175)
 
         corona_grupo.add(corona[0])
         corona_grupo.add(corona[1])
@@ -264,13 +279,15 @@ while loop:
     
    
     if colisao():                                           # Caso a função colisão retorne True 
+        SOM["colisao"].play()
         game_over=True
-       
+    pontua(guria_grupo.sprites()[0],corona_grupo.sprites()[0])   
         
 
     #Atualização da tela
     pygame.display.update()
     fps.tick(FPS)
+    print(pontos)
 
 
    
