@@ -20,7 +20,7 @@ ALTURA = 700
 
 VELOCIDADE=12 
 GRAVIDADE=1.5
-VELOCIDADEJOGO=8
+VELOCIDADEJOGO=12
 LARGURASOLO= 2*LARGURA
 ALTURASOLO=100
 LARGURACORONA=80
@@ -144,29 +144,33 @@ def pontua(sprite1,sprite2):
     meio_corona=sprite2.rect[0]+sprite2.rect[2]/2
 
     meia_guria=sprite1.rect[0]+sprite1.rect[2]/2
-    global pontos,numero
+    global pontos
     if meio_corona<=meia_guria:
-        pontos=sprite2.numero
+        if sprite2.numero > pontos:
+            SOM['ponto'].play()
+            pontos=sprite2.numero
+            print(SOM['ponto'].get_length())
+
         
 
-#endregion
+#endregion 
 
 # ****************FUNÇÃO PRINCIPAL DO GAME ****************
 
 pygame.init()
 fonte_g=pygame.font.Font("FlappyBirdy.ttf",80)
 fonte_p=pygame.font.Font("FlappyBirdy.ttf",60)
-fonte_pts = pygame.font.Font("Flappy-Bird.ttf",40)
+fonte_pts = pygame.font.Font("fonte.ttf",30)
 
 
 def ponto_tela(superficie,texto,x,y):
-    sup_pts  = fonte_pts.render(texto,True,(0,0,0)) 
+    sup_pts  = fonte_pts.render((texto),True,(250,250,250)) 
     pts_rect = sup_pts.get_rect()
     pts_rect.midtop = (x,y)
     superficie.blit(sup_pts,pts_rect)
 ## Tela de gameover
 def teladegameover():
-    global pontos
+
     tela.blit(FUNDO,(0,0))
     pygame.time.delay(1000)
     SOM["tela_inicial"].play(0,0,500)
@@ -180,9 +184,9 @@ def teladegameover():
     tela.blit(sup_sub1,(75,ALTURA/2))
     tela.blit(sup_sub2,(300,(ALTURA/2)+50))
     tela.blit(sup_sub3,(215,(ALTURA/2)+100))
-
+    print(pontos)
     if pontos != 0:
-        ponto_tela(tela,pontos,215,(ALTURA/2)+150)
+        ponto_tela(tela,("Total: {0} ponto(s) :)".format(str(pontos))),300,10)
     pygame.display.flip()
     aguardando=True
     while aguardando:
@@ -234,8 +238,8 @@ loop=True
 while loop:
     if game_over:
         numero = 2
-        pontos = 0
         teladegameover()
+        pontos = 0
         game_over = False
         guria_grupo = pygame.sprite.Group()  #Criando grupo de personagens (facilita manipulação)
         guria=Guria()  #Criando obsjeto do tipo Guria
@@ -289,21 +293,21 @@ while loop:
     corona_grupo.update()                                   # Update obstáculo  
     corona_grupo.draw(tela)                                 # Colocando Obstáculo na tela
     
-    ponto_tela(tela,str(pontos),10,20)
+    ponto_tela(tela,str(pontos),300,10)
     
     
     
-   
+    pontua(guria_grupo.sprites()[0],corona_grupo.sprites()[0])  
+    print (pontos) 
     if colisao():                                           # Caso a função colisão retorne True 
         SOM["colisao"].play()
         game_over=True
-    pontua(guria_grupo.sprites()[0],corona_grupo.sprites()[0])   
-        
+
 
     #Atualização da tela
     pygame.display.update()
     fps.tick(FPS)
-    print(pontos)
+
 
 
    
