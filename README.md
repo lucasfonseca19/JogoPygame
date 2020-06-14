@@ -27,5 +27,6 @@
  https://youtu.be/3UxnelT9aCo
 
  ******* AGRADECIMENTOS *******
+ 
  Um agradecimento especial ao professor Luciano e a Bárbara e Daniel !!! Sem a ajuda de vocês durante as aulas e os atendimentos,
  o desenvolvimento do jogo seria muito mais complicado. :)
