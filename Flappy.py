@@ -150,7 +150,7 @@ def teladegameover():
     SOM["tela_inicial"].play(0,0,500) #Música tema (Fade-in de 0.5s)
     # Renderizando texto para plotá-los na tela
     sup_tit1=fonte_g.render("Flappy Bird ",False,(221,119,70))
-    sup_tit2=fonte_g.render("Coronoa Edition",True,(221,119,70))
+    sup_tit2=fonte_g.render("Corona Edition",True,(221,119,70))
     sup_sub1=fonte_p.render("Use a barra para iniciar o jogo ",True,(221,119,70))
     sup_sub2=fonte_p.render("e",True,(221,119,70))
     sup_sub3=fonte_p.render(" para pular",True,(221,119,70))
