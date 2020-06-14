@@ -267,7 +267,7 @@ while loop:
     ponto_tela(tela,str(pontos),300,10)                   #Plotando pontuação na tela durante o jogo
     
     pontua(guria_grupo.sprites()[0],cano_grupo.sprites()[0])  #Verificando se ocorreu pontuação e alterando os pontos se positivo
-    print (pontos) 
+    
     if colisao():                                           # Caso a função colisão retorne True 
         SOM["colisao"].play()
         game_over=True                                     # game_over passa a ser true: reseta parâmetros necessários e mostra tela de gameover
