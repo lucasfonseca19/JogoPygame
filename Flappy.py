@@ -1,7 +1,6 @@
 #**************** Importando Bibliotecas para o Jogo ****************
 
 #region
-import os,sys
 import pygame, random
 from pygame.locals import *
 #endregion
@@ -26,9 +25,9 @@ LARGURACANO=80
 ALTURACANO=500
 ESPACO=200                              # Espaço entre cano superior e inferior
 FPS=30                                  # Frames por segundo 
-SOM={}        
-pygame.mixer.init()
-SOM["tela_inicial"]=pygame.mixer.Sound('coronamusic.ogg')
+SOM={}                                  # Dicionario de som
+pygame.mixer.init()                     # Iniciando o modulo de mixagem de som do pygame
+SOM["tela_inicial"]=pygame.mixer.Sound('coronamusic.ogg') 
 SOM["pular"]=pygame.mixer.Sound('pulo.ogg')
 SOM["colisao"]=pygame.mixer.Sound('colisao.ogg')
 SOM["ponto"]=pygame.mixer.Sound('ponto.ogg')
@@ -37,7 +36,7 @@ pontos=0                               # Pontos obtidos quando o personagem pass
 numero=0                               # "Código de série" de cada dupla de canos. Esse valor é iterado e cada dupla de canos possui o valor da anterior + 1
 fonte_g=pygame.font.Font("FlappyBirdy.ttf",80)  # Criando fonte grande para o título
 fonte_p=pygame.font.Font("FlappyBirdy.ttf",60)  # Criando fonte pequena para as instruções de jogo
-fonte_pts = pygame.font.Font("fonte.ttf",30)  #Criando fonte para pontuação durante o jogo e pontuação final
+fonte_pts = pygame.font.Font("fonte.ttf",30)  # Criando fonte para pontuação durante o jogo e pontuação final
 
 #endregion
 
@@ -168,11 +167,11 @@ def teladegameover():
     while aguardando:  #Permanece na tela até o usuário pressionar e soltar a barra de espaço
         fps.tick(FPS)
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:     # Se apertar o X para sair do jogo a tela é fechada
                 pygame.quit()
                 
             if event.type == pygame.KEYUP:
-                if event.key==K_SPACE:
+                if event.key==K_SPACE:       # Ao soltar a tecla de espaço, sai da tela de game over/ inicio e o som diminui até parar (fadeout)
                     SOM["tela_inicial"].fadeout(500)
                     aguardando = False
 #endregion 
@@ -201,59 +200,60 @@ for i in range (2):               #criando um solo em seguida do outro
 
 cano_grupo = pygame.sprite.Group()  #Criando o grupo do Cano (facilita manipulação)
 for i in range(2):                      #randomizando Canos, criando novos, e adicionando em um grupo
-    cano = randomizacano(400*i+600)
+    cano = randomizacano(400*i+600)     # Valor inicial de 600 pixels para o jogador conseguir avistar os canos
     cano_grupo.add(cano[0])
     cano_grupo.add(cano[1])
 #endregion
 
 ## **************** LOOP PRINCIPAL DO JOGO ****************
 
+#region
 loop=True
 while loop:
-    if game_over:  # Mostra tela inicial/ de gameover e reinicia os parâmetro necessários
-        numero = 2
-        teladegameover()
-        pontos = 0
+    if game_over:  # Mostra tela inicial/ gameover e reinicia os parâmetro necessários
+        numero = 2 # Parâmetro determinado para melhor funcionamento da função pontua
+        teladegameover() 
+        pontos = 0 # Pontuação zerada
         game_over = False
-        guria_grupo = pygame.sprite.Group()  #Criando grupo de personagens (facilita manipulação)
-        guria=Guria()  #Criando obsjeto do tipo Guria
-        guria_grupo.add(guria)  #Adicionando obejto no grupo
+        guria_grupo = pygame.sprite.Group()  # Criando grupo de personagens (facilita manipulação)
+        guria=Guria()  # Criando objeto do tipo Guria
+        guria_grupo.add(guria)  # Adicionando objeto no grupo
 
 
-        solo_grupo=pygame.sprite.Group()  #Criando grupo de solo (facilita manipulação)
-        for i in range (2):               #criando um solo em seguida do outro
+        solo_grupo=pygame.sprite.Group()  # Criando grupo de solo (facilita manipulação)
+        for i in range (2):               # Criando um solo em seguida do outro
             solo=Solo(LARGURASOLO*i)
             solo_grupo.add(solo)
 
-        cano_grupo = pygame.sprite.Group()  #Criando o grupo do Cano (facilita manipulação)
-        for i in range(2):                      #randomizando Cano criando novos e adicionando no grupo
+        cano_grupo = pygame.sprite.Group()  # Criando o grupo do Cano (facilita manipulação)
+        for i in range(2):                      # Randomizando Cano criando novos e adicionando no grupo
             cano = randomizacano(400*i+600)
             cano_grupo.add(cano[0])
             cano_grupo.add(cano[1])
 
-    fps.tick(FPS)  #Determina o fps do jogo (frames por segundo)
+    fps.tick(FPS)  # Determina o fps do jogo (frames por segundo)
     for evento in pygame.event.get():
         if evento.type == QUIT:         # Se o usuário apertar no botão (x) de fechar, o jogo é fechado 
             pygame.quit()
         if evento.type == pygame.KEYDOWN: 
-            if evento.key==K_SPACE:  #Captura se a barra foi pressioanada para ativar a função pular da classe da personagem.
+            if evento.key==K_SPACE:  # Captura se a barra foi pressioanada para ativar a função pular da classe da personagem.
                 SOM["pular"].play() 
                 guria.pular()
  
-    tela.blit(FUNDO,(0,0))                                   #colocando a imagem de fundo na tela na origem da dela (0,0)
+    tela.blit(FUNDO,(0,0))                                   # Colocando a imagem de fundo na tela na origem da dela (0,0)
     
-    if foratela(solo_grupo.sprites()[0]):                    # teste se o solo está fora da tela
-        solo_grupo.remove(solo_grupo.sprites()[0])           #remove o solo na posição 0 do grupo se ele ja saiu da tela
-        novosolo=Solo(LARGURASOLO-10)                        #Criando novo solo pra entrar no grupo criando assim um loop de solos consecutivos(o -10 garante um melhor "encaixe" de um no outro)
+    if foratela(solo_grupo.sprites()[0]):                    # Teste se o solo está fora da tela
+        solo_grupo.remove(solo_grupo.sprites()[0])           # Remove o solo na posição 0 do grupo se ele ja saiu da tela
+        novosolo=Solo(LARGURASOLO-10)                        # Criando novo solo pra entrar no grupo criando assim um loop de solos consecutivos(o -10 garante um melhor "encaixe" de um no outro)
         solo_grupo.add(novosolo)
-    if foratela(cano_grupo.sprites()[0]):                    # teste se o Cano está fora da tela 
+    if foratela(cano_grupo.sprites()[0]):                    # Teste se o Cano está fora da tela 
         cano_grupo.remove(cano_grupo.sprites()[0])           # Removendo cano inferior
         cano_grupo.remove(cano_grupo.sprites()[0])           # Removendo cano superior que passa a ser elemento de indice 0 após remoção do inferior
 
-        cano = randomizacano(LARGURA+175)                    #Criando nova dupla de canos 
+        cano = randomizacano(LARGURA+175)                    # Criando nova dupla de canos 
 
-        cano_grupo.add(cano[0])                              #Adicionando novo cano inferior no grupo
-        cano_grupo.add(cano[1])                              #Adicionando novo cano superior no grupo
+        cano_grupo.add(cano[0])                              # Adicionando novo cano inferior no grupo
+        cano_grupo.add(cano[1])                              # Adicionando novo cano superior no grupo
 
     guria_grupo.update()                                    # Update personagem
     guria_grupo.draw(tela)                                  # Colocando o personagem na tela
@@ -264,9 +264,9 @@ while loop:
     cano_grupo.update()                                   # Update obstáculo  
     cano_grupo.draw(tela)                                 # Colocando Obstáculo na tela
     
-    ponto_tela(tela,str(pontos),300,10)                   #Plotando pontuação na tela durante o jogo
+    ponto_tela(tela,str(pontos),300,10)                   # Plotando pontuação na tela durante o jogo
     
-    pontua(guria_grupo.sprites()[0],cano_grupo.sprites()[0])  #Verificando se ocorreu pontuação e alterando os pontos se positivo
+    pontua(guria_grupo.sprites()[0],cano_grupo.sprites()[0])  # Verificando se ocorreu pontuação e alterando os pontos se positivo
     
     if colisao():                                           # Caso a função colisão retorne True 
         SOM["colisao"].play()
@@ -275,7 +275,7 @@ while loop:
     #Atualização da tela
     pygame.display.update()
     fps.tick(FPS)
-
+#endregion
 
 
    
