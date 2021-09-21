@@ -16,7 +16,6 @@ ALTURA = 700
 
 #region
 pygame.init() # "Inicializa todos os módulos de pygame importados"
-VELOCIDADE=12 
 GRAVIDADE=1.5
 VELOCIDADEJOGO=12
 LARGURASOLO= 2*LARGURA
@@ -44,16 +43,24 @@ fonte_pts = pygame.font.Font("fonte.ttf",30)  # Criando fonte para pontuação d
 ## Elas herdam funções da classe sprite do pygame
 
 #region
-class Guria(pygame.sprite.Sprite):
+# creating abstract class of games objects
+class GameObject(pygame.sprite.Sprite):	
+    def __init__(self,imagem,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(imagem).convert_alpha()
+        self.image = pygame.transform.scale(self.image,(self.x,self.y))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+
+
+
+class Guria(GameObject):
     """ Esta classe refere-se à personagem do jogo """
-    def __init__(self):
+    def __init__(self, imagem, x, y):
+        VELOCIDADE= 12
         """ Iniciando construtor de classes """
-        pygame.sprite.Sprite.__init__(self)  #Inicializa o construtor sprite do pygame:
-        self.image = pygame.image.load('guria.png').convert_alpha() #Importando imagem do personagem e usando convert alpha para considerar apenas os pixel do icone(sem o fundo)
-        self.image = pygame.transform.scale(self.image,(100,100))  #Alterando o tamanho da imagem
-        self.mask = pygame.mask.from_surface(self.image)  # criando mascara de valores 0 e 1 (0 para pixel vazio e 1 para pixel com alguma cor) Isso sera usado para checar a colisão que ocorrerá apenas quando um pixel 1 de um grupo encontar em outro grupo um pixel igual(1)
-        self.velocidade = VELOCIDADE   #Determinando a velocidade inicial do objeto
-        self.rect = self.image.get_rect()   #Criando um retângulo com a imagem(útil para utilização de funções do pygame).Rect é considerado uma tulpla com 4 informações : [0]=Posição x na tela [1]= Posição y na tela [2] = Comprimento do objeto [3]= Altura do objeto
+        GameObject.__init__(self, imagem, x, y)
+        self.velocidade = self.VELOCIDADE   #Determinando a velocidade inicial do objeto
         self.rect.center=(LARGURA/2,ALTURA/2)   #Posição inicial da personagem. 
     
     def update(self): 
@@ -63,7 +70,7 @@ class Guria(pygame.sprite.Sprite):
     
     def pular(self):
         """ função de 'pulo' da personagem """
-        self.velocidade = - VELOCIDADE-1 
+        self.velocidade = - self.VELOCIDADE-1 
         
 class Solo(pygame.sprite.Sprite):
     """ Esta classe refere-se ao solo do jogo """
